@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +85,7 @@ public class MemberFragment extends Fragment {
         listMember.addOnScrollListener(recyclerViewOnScrollListener);
 
         initData();
+        initListener();
     }
 
     private void initData(){
@@ -111,7 +113,7 @@ public class MemberFragment extends Fragment {
         List<Member> memberList = new ArrayList<>();
         Member member;
 
-        int index = memberListAdapter.getItemCount();
+        int index = memberListAdapter.getItemCount() - 1;
         int end = index + PAGE_SIZE;
 
         if (end <= thumb.length) {
@@ -131,7 +133,15 @@ public class MemberFragment extends Fragment {
             }
         }
 
+    }
 
+    private void initListener() {
+        memberListAdapter.setOnItemClickListener(new MemberListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(context, "Clicked at index "+ position, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

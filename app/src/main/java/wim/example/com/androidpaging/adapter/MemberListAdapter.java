@@ -1,6 +1,5 @@
 package wim.example.com.androidpaging.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +25,7 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private boolean loading = true;
 
     private List<Member> memberList;
+    private OnItemClickListener onItemClickListener;
 
     public MemberListAdapter() {
         memberList = new ArrayList<>();
@@ -33,7 +33,7 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private void add(Member item) {
         memberList.add(item);
-        notifyItemInserted(memberList.size() - 1);
+        notifyItemInserted(memberList.size());
     }
 
     public void addAll(List<Member> memberList) {
@@ -69,15 +69,14 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private boolean isPositionFooter (int position) {
-        return position == getItemCount() - 1;
+        return position == memberList.size();
     }
-
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_member, parent, false);
-            return new MemberViewHolder(view);
+            return new MemberViewHolder(view, onItemClickListener);
         } else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.footer_loading, parent, false);
             return new LoadingViewHolder(view);
@@ -112,7 +111,7 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
-        return memberList == null ? 0 : memberList.size();
+        return memberList == null ? 0 : memberList.size() + 1;
     }
 
     @Override
@@ -125,18 +124,32 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         super.onDetachedFromRecyclerView(recyclerView);
     }
 
-    static class MemberViewHolder extends RecyclerView.ViewHolder {
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    static class MemberViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView memberThumb;
         TextView memberName;
         TextView memberTeam;
 
-        public MemberViewHolder(View itemView) {
+        OnItemClickListener onItemClickListener;
+
+        public MemberViewHolder(View itemView, OnItemClickListener onItemClickListener) {
             super(itemView);
 
             memberThumb = (ImageView) itemView.findViewById(R.id.thumb);
             memberName = (TextView) itemView.findViewById(R.id.name);
             memberTeam = (TextView) itemView.findViewById(R.id.team);
+
+            itemView.setOnClickListener(this);
+            this.onItemClickListener = onItemClickListener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            onItemClickListener.onItemClick(v, getAdapterPosition());
         }
     }
 
@@ -151,4 +164,8 @@ public class MemberListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
 
+    public interface OnItemClickListener {
+
+        void onItemClick(View view, int position);
+    }
 }
